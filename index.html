@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Luxia Labs · Prompt Builder</title>
   <style>
+    /* AGREGAR AL INICIO DEL CSS */
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
@@ -119,18 +124,16 @@
     }
 
     /* RESPONSIVE: Ajustes para celular */
-    @media (max-width: 820px) {
+    @media (max-width: 800px) {
       .main-grid { 
         grid-template-columns: 1fr; 
       }
       
-      /* AGREGAR ESTO: Reducir márgenes en celular */
       body {
-        padding: 15px; /* De 40px bajamos a 15px */
-      }
-      
-      .header-container {
-        text-align: center; /* Opcional: Centrar el header en celular se ve bien */
+        /* Aquí definimos el "aire" a los lados */
+        padding: 20px 20px; /* 20px arriba/abajo, 20px izquierda/derecha */
+        width: 100%;
+        overflow-x: hidden; /* Evita que se mueva horizontalmente por accidente */
       }
     }
   </style>
@@ -383,6 +386,7 @@ Realistic, calm, professional, and market-ready.
 
 </body>
 </html>
+
 
 
 
