@@ -59,8 +59,17 @@
       font-size: 13px;
     }
 
-    input, textarea {
+    /* 1. ESTILO PARA EL CUADRO GRANDE (PROMPT) - Se queda ancho */
+    textarea {
       width: 100%;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    /* 2. ESTILO PARA LOS INPUTS (ÁREA Y CONTEXTO) - Se hacen cortos */
+    input {
+      width: 100%;
+      max-width: 300px; /* <--- ESTO ES LO QUE LOS ACORTA */
       padding: 8px;
       font-size: 14px;
     }
@@ -358,6 +367,7 @@ Realistic, calm, professional, and market-ready.
 
 </body>
 </html>
+
 
 
 
