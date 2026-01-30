@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Luxia Labs · Prompt Builder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .toggle {
+      display: flex;
+      gap: 15px;
+    }
+
+    .toggle button {
+      padding: 8px 16px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .toggle button.active {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      background: #ddd;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    textarea {
+      height: 260px;
+      margin-top: 8px;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 25px;
+      margin-bottom: 5px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .actions button {
+      padding: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .generate {
+      background: #111;
+      color: #fff;
+    }
+
+    .copy {
+      background: #555;
+      color: #fff;
+    }
+
+    .copied {
+      font-size: 12px;
+      color: green;
+      margin-top: 6px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Luxia Labs · Prompt Builder</h1>
+<p>Interfaz en español · Prompt generado en inglés</p>
+
+<!-- TOGGLES -->
+<div class="group">
+  <label>Día / Noche</label>
+  <div class="toggle" data-name="time">
+    <button class="active">Día</button>
+    <button>Noche</button>
+  </div>
+</div>
+
+<div class="group">
+  <label>Interior / Exterior</label>
+  <div class="toggle" data-name="scene">
+    <button class="active">Interior</button>
+    <button>Exterior</button>
+  </div>
+</div>
+
+<div class="group">
+  <label>Residencial / Comercial</label>
+  <div class="toggle" data-name="use">
+    <button class="active">Residencial</button>
+    <button>Comercial</button>
+  </div>
+</div>
+
+<div class="group">
+  <label>Torre / Villa</label>
+  <div class="toggle" data-name="use">
+    <button class="active">Torre</button>
+    <button>Villa</button>
+  </div>
+</div>
+
+<div class="group">
+  <label>Presupuesto</label>
+  <div class="toggle" data-name="budget">
+    <button class="active">High-end</button>
+    <button>Low-cost</button>
+  </div>
+</div>
+
+<!-- AREA -->
+<div class="group">
+  <label>Área / Espacio</label>
+  <input id="areaInput" placeholder="Ej: Living, lobby, habitación, fachada…" />
+  <div class="tags">
+    <div class="tag area-tag">Living room</div>
+    <div class="tag area-tag">Lobby</div>
+    <div class="tag area-tag">Bedroom</div>
+    <div class="tag area-tag">Façade</div>
+    <div class="tag area-tag">Amenity area</div>
+    <div class="tag area-tag">Masterplan</div>
+  </div>
+</div>
+
+<!-- CONTEXTO -->
+<div class="group">
+  <label>Contexto</label>
+  <input id="contextInput" placeholder="Ej: Urbano, Costero, Punta Cana…" />
+  <div class="tags">
+    <div class="tag context-tag">Urban</div>
+    <div class="tag context-tag">Coastal</div>
+    <div class="tag context-tag">Mountain</div>
+    <div class="tag context-tag">Santo Domingo</div>
+    <div class="tag context-tag">Santiago de los Caballeros</div>
+    <div class="tag context-tag">Punta Cana</div>
+    <div class="tag context-tag">Cabarete</div>
+    <div class="tag context-tag">Jarabacoa</div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="generate" onclick="generatePrompt()">Generar Prompt</button>
+  <button class="copy" onclick="copyPrompt()">Copiar Prompt</button>
+</div>
+
+<div class="hint">Puedes revisar y editar el prompt antes de copiarlo.</div>
+<textarea id="output" placeholder="Aquí aparecerá el prompt en inglés..."></textarea>
+<div class="copied" id="copiedMsg">Prompt copiado ✔</div>
+
+<script>
+  // Logic para botones Toggle
+  document.querySelectorAll('.toggle').forEach(group => {
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  });
+
+  // Logic para Tags de Área (Rellena el input)
+  document.querySelectorAll('.area-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      document.getElementById("areaInput").value = tag.textContent;
+    });
+  });
+
+  // Logic para Tags de Contexto (Agrega al input)
+  document.querySelectorAll('.context-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const input = document.getElementById("contextInput");
+      const current = input.value.split(" ").filter(Boolean);
+      if (!current.includes(tag.textContent)) {
+        current.push(tag.textContent);
+        input.value = current.join(" ");
+      }
+    });
+  });
+
+  // Función auxiliar para leer qué botón está activo
+  function getToggleValue(name) {
+    // Busca el div con el data-name correcto y saca el texto del botón activo
+    const element = document.querySelector(`.toggle[data-name="${name}"] .active`);
+    return element ? element.textContent : "";
+  }
+
+  function generatePrompt() {
+    // 1. OBTENER VALORES
+    const time = getToggleValue("time");     // Día / Noche
+    const scene = getToggleValue("scene");   // Interior / Exterior
+    const use = getToggleValue("use");       // Residencial / Comercial
+    // Nota: Tienes dos toggles con data-name="use" (Residencial y Torre). 
+    // El querySelector solo agarrará el primero. 
+    // Sugiero cambiar el data-name del segundo a "typology" en el HTML si quieres leerlo aparte.
+    
+    const budget = getToggleValue("budget"); // High-end / Low-cost
+    
+    // El área viene del INPUT de texto, no de un botón toggle
+    const areaValue = document.getElementById("areaInput").value; 
+    
+    const context = document.getElementById("contextInput").value || "contextually appropriate environment";
+
+    // ---------------------------------------------------------
+    // 2. LÓGICA DE REFERENCIAS (Corregida)
+    // ---------------------------------------------------------
+    let referenceUrl = "https://drive.google.com/drive/folders/12avAH0lt492VH0qY7Qplc9LP3X8UAjeE?usp=sharing"; // Link Default
+
+    // Usamos .includes() porque el usuario puede escribir "Living room amplio" y queremos que detecte "Living room"
+    
+    // -- GRUPO HIGH-END --
+    if (budget === "High-end") {
+        if (areaValue.includes("Living room")) {
+            referenceUrl = "https://drive.google.com/drive/folders/1LjKlnamEaYKu4X7rYIA9auJ5ahX-YmiQ?usp=sharing";
+        } else if (areaValue.includes("Bedroom")) {
+            referenceUrl = "https://drive.google.com/drive/folders/1ME0-NtUVmhHlM4sg7oAkBwNTo1ogaxBj?usp=sharing";
+        } else if (areaValue.includes("Amenity area")) {
+            referenceUrl = "https://drive.google.com/drive/folders/1cqMyRysi5Fo0PZTam0MoUic0SR8YojGF?usp=sharing";
+        }
+    }
+    
+    // -- GRUPO LOW-COST --
+    else if (budget === "Low-cost") {
+        if (areaValue.includes("Living room")) {
+            referenceUrl = "https://drive.google.com/drive/folders/1gban_7QnCzleKNmirc3MMpwt5djV6WPt?usp=sharing";
+        } else if (areaValue.includes("Bedroom")) {
+            referenceUrl = "https://drive.google.com/drive/folders/1eeRsy-9dHb4xUapO4f-7kiSPaog3gx3M?usp=sharing";
+        } else if (areaValue.includes("Amenity area")) {
+            referenceUrl = "https://drive.google.com/drive/folders/18xKZNI6TXL_GVIHEFZrB5QEB8lqT_7Q_?usp=sharing";
+        }
+    }
+
+    // -- OTROS CASOS --
+    // Como Masterplan suele ser exterior, podemos priorizar la palabra clave
+    if (areaValue.includes("Masterplan")) {
+        referenceUrl = "https://drive.google.com/drive/folders/16I8rOO7LnVytGfL0CcCAPX_e74N5_qam?usp=sharing";
+    }
+    
+    if (areaValue.includes("Façade") || areaValue.includes("Fachada")) {
+        // Aquí podrías filtrar si es Torre o Villa si arreglas el HTML del toggle, 
+        // por ahora pondremos un genérico o el de Torre
+        referenceUrl = "https://drive.google.com/drive/folders/1vlV6P2mNFlp5JD9bX2Ws-ZguH6E0Csw8?usp=sharing";
+    }
+
+
+    // ---------------------------------------------------------
+    // 3. CONSTRUCCIÓN DE TEXTOS
+    // ---------------------------------------------------------
+
+    const referenceBlock = `
+    Visual Reference:
+    Use the following reference images as inspiration for rendering quality, lighting realism, material behavior, and overall atmosphere:
+    ${referenceUrl}
+
+    Do not replicate the exact design. Use the references only to guide realism level, mood, composition, and professional architectural visualization standards.
+    `;
+
+    const lighting = time === "Día"
+      ? "natural daylight with soft shadows and balanced exposure"
+      : "realistic nighttime lighting with warm artificial lights and controlled contrast";
+
+    const ambiance = scene === "Interior"
+      ? "naturally staged interior elements such as minimalist wall art, subtle indoor vegetation, curtains, furniture styling, and realistic decorative details appropriate to the space"
+      : "context-appropriate exterior elements such as landscape design, vegetation, sky conditions, surrounding buildings, vehicles, and environmental details";
+
+    const quality = budget === "High-end"
+      ? "premium materials, refined detailing, elegant proportions, and a sophisticated architectural language"
+      : "cost-efficient materials, simplified detailing, and clean, functional architectural design";
+
+    // 4. ARMAR PROMPT FINAL
+    const prompt = `
+Create a photorealistic ${scene.toLowerCase()} architectural render based on the provided Revit screenshot.
+
+${referenceBlock}
+
+The scene represents a ${use.toLowerCase()} ${areaValue}, designed with a contemporary architectural approach.
+
+Lighting:
+Use ${lighting}.
+
+Materials & Quality:
+Apply physically accurate materials with realistic textures, natural imperfections, and ${quality}.
+
+Context:
+The project is located in a ${context} setting. The environment, atmosphere, and background elements should respond naturally to this context.
+
+Scene Styling:
+${ambiance}.
+
+Camera:
+Eye-level architectural perspective, wide-angle lens (24–28mm), clean composition, natural depth of field.
+
+Overall Mood:
+Realistic, calm, professional, and market-ready.
+    `.trim();
+
+    document.getElementById("output").value = prompt;
+  }
+
+  function copyPrompt() {
+    const output = document.getElementById("output");
+    output.select();
+    document.execCommand("copy");
+
+    const msg = document.getElementById("copiedMsg");
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 2000);
+  }
+</script>
+
+</body>
+</html>
